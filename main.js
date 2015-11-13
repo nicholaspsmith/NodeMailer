@@ -2,7 +2,10 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded(
+  {extended:true}
+));
+app.use(bodyParser.json());
 
 var ContextIO = require('contextio');
 var ctxCfg = require('./contextConfig');
@@ -21,14 +24,19 @@ app.post('/', function (req, res) {
 });
 
 app.post('/received', function(req, res){
-  console.log(req.body);
-  // grab message_id
-  // var messageId = req.message_data.message_id;
-  // res.send('POST to received page ' , req);
+  // console.log(req.body);
+  var message_id = req.body.message_data.message_id;
 
   // get content of message
   // https://api.context.io/2.0/accounts/id/messages/message_id
+  ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1}, function (err, response) {
+    if (err) throw err;
+    console.log(response.body.body[0].content);
+    var msg = "Successfully pulled content from email: " + message_id;
+    res.status(200).send(msg);
+  });
 
+  res.status(404);
   // run it through Amazon ML
 
   // move it to folder dictated by ML using contextio
