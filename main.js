@@ -13,8 +13,7 @@ var ctxioClient = new ContextIO.Client('2.0', {
 
 
 app.get('/',function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello Node\n');
+  res.send('GET request to homepage');
 });
 
 app.post('/', function (req, res) {
@@ -22,7 +21,18 @@ app.post('/', function (req, res) {
 });
 
 app.post('/received', function(req, res){
-  res.send('POST to received page');
+  console.log(req.body);
+  // grab message_id
+  // var messageId = req.message_data.message_id;
+  // res.send('POST to received page ' , req);
+
+  // get content of message
+  // https://api.context.io/2.0/accounts/id/messages/message_id
+
+  // run it through Amazon ML
+
+  // move it to folder dictated by ML using contextio
+
 });
 
 app.post('/a', function (req, res) {
