@@ -4,6 +4,14 @@ var bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended:false}));
 
+var ContextIO = require('contextio');
+var ctxCfg = require('./contextConfig');
+var ctxioClient = new ContextIO.Client('2.0', {
+  key: ctxCfg.key,
+  secret: ctxCfg.secret
+});
+
+
 app.get('/',function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end('Hello Node\n');
