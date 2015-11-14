@@ -33,14 +33,15 @@ app.post('/received', function(req, res){
     if (err) throw err;
     var body = response.body.body[0].content
     var msg = "Successfully pulled content from email: " + message_id;
+    // run it through Amazon ML
+
+    // move it to folder dictated by ML using contextio
     res.status(200).send(body);
   });
 
+
+  // context wasn't called
   res.status(404);
-  // run it through Amazon ML
-
-  // move it to folder dictated by ML using contextio
-
 });
 
 app.post('/a', function (req, res) {
