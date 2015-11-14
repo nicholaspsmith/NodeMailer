@@ -24,16 +24,16 @@ app.post('/', function (req, res) {
 });
 
 app.post('/received', function(req, res){
-  // console.log(req.body);
-  var message_id = req.body.message_data.message_id;
+  console.log(req.body.message_id);
+  var message_id = req.body.message_id;
 
   // get content of message
   // https://api.context.io/2.0/accounts/id/messages/message_id
   ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1}, function (err, response) {
     if (err) throw err;
-    console.log(response.body.body[0].content);
+    var body = response.body.body[0].content
     var msg = "Successfully pulled content from email: " + message_id;
-    res.status(200).send(msg);
+    res.status(200).send(body);
   });
 
   res.status(404);
