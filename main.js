@@ -63,6 +63,7 @@ app.post('/received', function(req, res){
           prediction = "Amazon Receipt";
         }
         res.status(200).send();
+        // Problem: amazon is returning negative for all emails despite content
       }
     });
 
