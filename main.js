@@ -26,27 +26,71 @@ var json2csv = require('json2csv');
 // include fs for writing files
 var fs = require("fs");
 
+var moment = require("moment");
+
+// @TODO
+// create 2 csv's from 2 different email accounts
+// starscater - training data (pull in all emails, mark amazon's as 1, others as 0)
+// unsignedn - check data (same thing)
+
+// train algorithm using startscater csv data
+// check algorithm using unsignedn csv data
+
 
 // API Endpoints
 
-app.get('/',function (req, res) {
-  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1,from:'auto-confirm@amazon.com'}, function (err, response) {
+app.get('/aol',function (req, res) {
+  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1}, function (err, response) {
     if (err) throw err;
     var body = response.body;
 
+    var fields = [
+      'addresses.from.email',
+      'body[0].content',
+      {
+        label: 'amazon_receipt',
+        value: function(row) {if (row.addresses.from.email === 'auto-confirm@amazon.com') {return 1;} return 0;},
+        default: 0
+      }
+    ];
     // convert body to csv and save to file
-    json2csv({ data: body, fields: ['addresses.from.email','body[0].content'] }, function(err, csv) {
+    json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
-      // console.log(csv);
-
-      fs.writeFile('file.csv', csv, function(err) {
+      // Filename based on current time
+      var filename = 'aol-emails-' + moment().format('MDhhmmss');
+      fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
-        console.log('file saved');
+          res.status(200).send('Saved to file.csv');
       });
-
-      res.status(200).send('Saved to file.csv');
     });
+  });
+});
 
+app.get('/unsignedn',function (req, res) {
+  ctxioClient.accounts(ctxCfg.unsignedn).messages().get({include_body:1}, function (err, response) {
+    if (err) throw err;
+    var body = response.body;
+
+    var fields = [
+      'addresses.from.email',
+      'body[0].content',
+      {
+        label: 'amazon_receipt',
+        value: function(row) {if (row.addresses.from.email === 'auto-confirm@amazon.com') {return 1;} return 0;},
+        default: 0
+      }
+    ];
+
+    // convert body to csv and save to file
+    json2csv({ data: body, fields: fields }, function(err, csv) {
+      if (err) console.log(err);
+      // Filename based on current time
+      var filename = 'aol-emails-' + moment().format('MDhhmmss');
+      fs.writeFile(filename + '.csv', csv, function(err) {
+        if (err) throw err;
+          res.status(200).send('Saved to file.csv');
+      });
+    });
   });
 });
 
