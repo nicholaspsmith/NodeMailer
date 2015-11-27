@@ -39,13 +39,16 @@ var moment = require("moment");
 
 // API Endpoints
 
+app.get('/',function (req, res) {
+  res.status(200).send('<a href="/aol">aol</a>&nbsp;<a href="/unsignedn">unsignedn</a>');
+});
+
 app.get('/aol',function (req, res) {
-  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1}, function (err, response) {
+  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1,limit:100}, function (err, response) {
     if (err) throw err;
     var body = response.body;
 
     var fields = [
-      'addresses.from.email',
       'body[0].content',
       {
         label: 'amazon_receipt',
@@ -60,23 +63,22 @@ app.get('/aol',function (req, res) {
       var filename = 'aol-emails-' + moment().format('MDhhmmss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
-          res.status(200).send('Saved to file.csv');
+          res.redirect('/');
       });
     });
   });
 });
 
 app.get('/unsignedn',function (req, res) {
-  ctxioClient.accounts(ctxCfg.unsignedn).messages().get({include_body:1}, function (err, response) {
+  ctxioClient.accounts(ctxCfg.unsignedn).messages().get({include_body:1,limit:100}, function (err, response) {
     if (err) throw err;
     var body = response.body;
 
     var fields = [
-      'addresses.from.email',
       'body[0].content',
       {
         label: 'amazon_receipt',
-        value: function(row) {if (row.addresses.from.email === 'auto-confirm@amazon.com') {return 1;} return 0;},
+        value: function(row) {if (row.addresses.from.email === 'starscater@aol.com') {return 1;} return 0;},
         default: 0
       }
     ];
@@ -85,10 +87,10 @@ app.get('/unsignedn',function (req, res) {
     json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
       // Filename based on current time
-      var filename = 'aol-emails-' + moment().format('MDhhmmss');
+      var filename = 'unsignedn-emails-' + moment().format('MDhhmmss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
-          res.status(200).send('Saved to file.csv');
+          res.redirect('/');
       });
     });
   });
