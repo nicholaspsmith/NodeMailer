@@ -20,11 +20,33 @@ var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1'
 var machinelearning = new AWS.MachineLearning();
 
+// include json2csv
+var json2csv = require('json2csv');
+
+// include fs for writing files
+var fs = require("fs");
+
+
+// API Endpoints
+
 app.get('/',function (req, res) {
-  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1}, function (err, response) {
+  ctxioClient.accounts(ctxCfg.aol).messages().get({include_body:1,from:'auto-confirm@amazon.com'}, function (err, response) {
     if (err) throw err;
-    var body = response;
-    res.status(200).send(body);
+    var body = response.body;
+
+    // convert body to csv and save to file
+    json2csv({ data: body, fields: ['addresses.from.email','body[0].content'] }, function(err, csv) {
+      if (err) console.log(err);
+      // console.log(csv);
+
+      fs.writeFile('file.csv', csv, function(err) {
+        if (err) throw err;
+        console.log('file saved');
+      });
+
+      res.status(200).send('Saved to file.csv');
+    });
+
   });
 });
 
@@ -37,7 +59,7 @@ app.post('/received', function(req, res){
 
   // get content of message
   // https://api.context.io/2.0/accounts/id/messages/message_id
-  ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1}, function (err, response) {
+  ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1,}, function (err, response) {
     if (err) throw err;
     // body[0] is text/plain
     var body = response.body.body[0].content
