@@ -4,7 +4,7 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded(
   {extended:true}
-));
+  ));
 app.use(bodyParser.json());
 
 // Set up context.io
@@ -49,12 +49,15 @@ app.get('/aol',function (req, res) {
     var body = response.body;
 
     var fields = [
-      'body[0].content',
-      {
-        label: 'amazon_receipt',
-        value: function(row) {if (row.addresses.from.email === 'auto-confirm@amazon.com') {return 1;} return 0;},
-        default: 0
-      }
+    {
+      label: 'content',
+      value: 'body[0].content'
+    },
+    {
+      label: 'amazon_receipt',
+      value: function(row) {if (row.addresses.from.email === 'auto-confirm@amazon.com') {return 1;} return 0;},
+      default: 0
+    }
     ];
     // convert body to csv and save to file
     json2csv({ data: body, fields: fields }, function(err, csv) {
@@ -63,7 +66,7 @@ app.get('/aol',function (req, res) {
       var filename = 'aol-emails-' + moment().format('MDhhmmss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
-          res.redirect('/');
+        res.redirect('/');
       });
     });
   });
@@ -75,12 +78,15 @@ app.get('/unsignedn',function (req, res) {
     var body = response.body;
 
     var fields = [
-      'body[0].content',
-      {
-        label: 'amazon_receipt',
-        value: function(row) {if (row.addresses.from.email === 'starscater@aol.com') {return 1;} return 0;},
-        default: 0
-      }
+    {
+      label: 'content',
+      value: 'body[0].content'
+    },
+    {
+      label: 'amazon_receipt',
+      value: function(row) {if (row.addresses.from.email === 'starscater@aol.com') {return 1;} return 0;},
+      default: 0
+    }
     ];
 
     // convert body to csv and save to file
@@ -90,49 +96,34 @@ app.get('/unsignedn',function (req, res) {
       var filename = 'unsignedn-emails-' + moment().format('MDhhmmss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
-          res.redirect('/');
+        res.redirect('/');
       });
     });
   });
 });
 
-app.post('/', function (req, res) {
-  res.send('POST request to the homepage');
-});
 
-app.post('/received', function(req, res){
-  var message_id = req.body.message_id;
+app.post('/received', function(req, res) {
 
-  // get content of message
-  // https://api.context.io/2.0/accounts/id/messages/message_id
-  ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1,}, function (err, response) {
+  var message_id = req.body.body.message_id;
+
+
+  ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1,limit:1,body_type:'text/plain'}, function (err, response) {
     if (err) throw err;
     // body[0] is text/plain
     var body = response.body.body[0].content
-    var msg = "Successfully pulled content from email: " + message_id;
 
     // run it through Amazon ML
-    var prediction;
     var params = {
-      MLModelId: 'ml-m1am1zq4td2',
-      PredictEndpoint: 'https://realtime.machinelearning.us-east-1.amazonaws.com', /* required */
+      MLModelId: 'ml-SfwRQfsIraC',
+      PredictEndpoint: 'https://realtime.machinelearning.us-east-1.amazonaws.com',
       Record: {
-        body: body
+        content: body
       }
     };
     machinelearning.predict(params, function(err, data) {
       if (err) console.log(err, err.stack); // an error occurred
-      else {
-        // Return
-        var label = data.Prediction.predictedLabel;
-        if (label == 0) {
-          prediction = "Not an Amazon Receipt";
-        } else {
-          prediction = "Amazon Receipt";
-        }
-        res.status(200).send();
-        // Problem: amazon is returning negative for all emails despite content
-      }
+      res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
     });
 
     // @TODO move it to folder dictated by ML using contextio
