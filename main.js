@@ -135,6 +135,11 @@ app.post('/received', function(req, res) {
 
         // convert body to csv and save to file so I know it worked
         if (data.Prediction.predictedLabel == 1) {
+          // Move to folder
+          ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id)folders().post(add:'Amazon Receipt')}, function (err, response) {
+            if (err) { throw err; }
+          });
+          // Set fields for logging info
           var fields = [
           {
             value: 'predictedLabel',
@@ -168,8 +173,6 @@ app.post('/received', function(req, res) {
           var filename = "./logs/webhook-success-" + moment().format('M-D-YY@hh:mm:ss');
           fs.writeFile(filename + '.csv', csv, function(err) {if (err) throw err;});
         });
-
-        // @TODO move it to folder dictated by ML using contextio
         res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
       } else {
         res.status(200).send("message_id did not match any messages");
