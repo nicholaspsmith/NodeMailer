@@ -136,7 +136,7 @@ app.post('/received', function(req, res) {
         // convert body to csv and save to file so I know it worked
         if (data.Prediction.predictedLabel == 1) {
           // Move to folder
-          ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).folders().post({add:'Amazon Receipt'}), function (err, response) {
+          ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).folders().post({add:'Amazon Receipt'}, function (err, response) {
             if (err) { throw err; }
           });
           // Set fields for logging info
