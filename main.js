@@ -28,15 +28,6 @@ var fs = require("fs");
 
 var moment = require("moment");
 
-// @TODO
-// create 2 csv's from 2 different email accounts
-// starscater - training data (pull in all emails, mark amazon's as 1, others as 0)
-// unsignedn - check data (same thing)
-
-// train algorithm using startscater csv data
-// check algorithm using unsignedn csv data
-
-
 // API Endpoints
 
 app.get('/',function (req, res) {
