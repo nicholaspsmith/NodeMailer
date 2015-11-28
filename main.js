@@ -106,12 +106,17 @@ app.get('/unsignedn',function (req, res) {
 app.post('/received', function(req, res) {
 
   var message_id = req.body.body.message_id;
+  var errored = false;
 
 
   ctxioClient.accounts(ctxCfg.unsignedn).messages(message_id).get({include_body:1,limit:1,body_type:'text/plain'}, function (err, response) {
     if (err) throw err;
     // body[0] is text/plain
-    var body = response.body.body[0].content
+    if (typeof response.body.body === 'undefined') {
+      errored = true;
+    } else {
+      var body = response.body.body[0].content;
+    }
 
     // run it through Amazon ML
     var params = {
@@ -122,17 +127,27 @@ app.post('/received', function(req, res) {
       }
     };
     machinelearning.predict(params, function(err, data) {
-      if (err) console.log(err, err.stack); // an error occurred
-      res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
+      if (err) {
+        console.log(err, err.stack);
+        errored = true;
+      }
+      if (!errored) {
+        res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
+      } else {
+        res.status(200).send("message_id did not match any messages");
+      }
     });
 
     // @TODO move it to folder dictated by ML using contextio
 
   });
 
-
   // context wasn't called
   res.status(404);
+});
+
+app.post('/failed', function(req, res) {
+
 });
 
 app.post('/a', function (req, res) {
