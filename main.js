@@ -147,7 +147,11 @@ app.post('/received', function(req, res) {
 });
 
 app.post('/failed', function(req, res) {
-
+  var filename = "webhook-failure-" + moment().format('MDhhmmss');
+  fs.writeFile(filename + '.csv', csv, function(err) {
+    if (err) throw err;
+    res.redirect('/');
+  });
 });
 
 app.post('/a', function (req, res) {
