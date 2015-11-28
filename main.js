@@ -106,7 +106,7 @@ app.get('/unsignedn',function (req, res) {
 app.post('/received', function(req, res) {
 
   var message_id = req.body.body.message_id;
-  // console.log(req.body);
+  console.log(req.body);
   var errored = false;
 
 
@@ -164,8 +164,6 @@ app.post('/received', function(req, res) {
           var filename = "./logs/webhook-success-" + moment().format('MDhhmmss');
           fs.writeFile(filename + '.csv', csv, function(err) {if (err) throw err;});
         });
-
-
 
         // @TODO move it to folder dictated by ML using contextio
         res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
