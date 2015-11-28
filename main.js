@@ -54,7 +54,7 @@ app.get('/aol',function (req, res) {
     json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
       // Filename based on current time
-      var filename = 'aol-emails-' + moment().format('M-D-YY@hh:mm:ss');
+      var filename = './training-files/aol-emails-' + moment().format('M-D-YY@hh:mm:ss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
         res.redirect('/');
@@ -84,7 +84,7 @@ app.get('/unsignedn',function (req, res) {
     json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
       // Filename based on current time
-      var filename = 'unsignedn-emails-' + moment().format('M-D-YY@hh:mm:ss');
+      var filename = './training-files/unsignedn-emails-' + moment().format('M-D-YY@hh:mm:ss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
         res.redirect('/');
@@ -110,6 +110,7 @@ app.post('/received', function(req, res) {
       errored = true;
     } else {
       var body = response.body.body[0].content;
+      body.substring(0,2000); // limit to 2000 characters
     }
 
     // run it through Amazon ML
@@ -120,6 +121,7 @@ app.post('/received', function(req, res) {
         content: body
       }
     };
+
     machinelearning.predict(params, function(err, data) {
       if (err) {
         console.log(err, err.stack);
