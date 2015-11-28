@@ -132,23 +132,23 @@ app.post('/received', function(req, res) {
         errored = true;
       }
       if (!errored) {
+        // Write to a file so I know it worked!
+        fs.writeFile(filename + '.csv', data.Prediction, function(err) {
+          if (err) throw err;
+        });
+        // @TODO move it to folder dictated by ML using contextio
         res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
       } else {
         res.status(200).send("message_id did not match any messages");
       }
     });
-
-    // @TODO move it to folder dictated by ML using contextio
-
   });
-
-  // context wasn't called
-  res.status(404);
+  res.status(404); // something went wrong :(
 });
 
 app.post('/failed', function(req, res) {
   var filename = "webhook-failure-" + moment().format('MDhhmmss');
-  fs.writeFile(filename + '.csv', csv, function(err) {
+  fs.writeFile(filename + '.csv', req, function(err) {
     if (err) throw err;
     res.redirect('/');
   });
