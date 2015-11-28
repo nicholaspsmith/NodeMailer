@@ -63,7 +63,7 @@ app.get('/aol',function (req, res) {
     json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
       // Filename based on current time
-      var filename = 'aol-emails-' + moment().format('MDhhmmss');
+      var filename = 'aol-emails-' + moment().format('M-D-YY@hh:mm:ss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
         res.redirect('/');
@@ -93,7 +93,7 @@ app.get('/unsignedn',function (req, res) {
     json2csv({ data: body, fields: fields }, function(err, csv) {
       if (err) console.log(err);
       // Filename based on current time
-      var filename = 'unsignedn-emails-' + moment().format('MDhhmmss');
+      var filename = 'unsignedn-emails-' + moment().format('M-D-YY@hh:mm:ss');
       fs.writeFile(filename + '.csv', csv, function(err) {
         if (err) throw err;
         res.redirect('/');
@@ -136,7 +136,7 @@ app.post('/received', function(req, res) {
       }
       if (!errored) {
         // add more info to our data
-        data.Prediction.time = moment().format('M-D-YY hh:mm:ss');
+        data.Prediction.time = moment().format('M-D-YY@hh:mm:ss');
         data.Prediction.body = body;
 
         // convert body to csv and save to file so I know it worked
@@ -171,7 +171,7 @@ app.post('/received', function(req, res) {
         json2csv({ data: data.Prediction, fields: fields }, function(err, csv) {
           if (err) console.log(err);
           // Filename based on current time
-          var filename = "./logs/webhook-success-" + moment().format('MDhhmmss');
+          var filename = "./logs/webhook-success-" + moment().format('M-D-YY@hh:mm:ss');
           fs.writeFile(filename + '.csv', csv, function(err) {if (err) throw err;});
         });
 
@@ -186,7 +186,7 @@ app.post('/received', function(req, res) {
 });
 
 app.post('/failed', function(req, res) {
-  var filename = "./logs/webhook-failure-" + moment().format('MDhhmmss');
+  var filename = "./logs/webhook-failure-" + moment().format('M-D-YY@hh:mm:ss');
   fs.writeFile(filename + '.csv', req, function(err) {
     if (err) throw err;
     res.redirect('/');
