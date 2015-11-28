@@ -185,8 +185,4 @@ app.post('/failed', function(req, res) {
   });
 });
 
-app.post('/a', function (req, res) {
-  res.send('POST request to a');
-});
-
 app.listen(process.env.PORT || 8080);
