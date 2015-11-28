@@ -135,6 +135,10 @@ app.post('/received', function(req, res) {
         errored = true;
       }
       if (!errored) {
+        // add more info to our data
+        data.Prediction.time = moment().format('M-D-YY hh:mm:ss');
+        data.Prediction.body = body;
+
         // convert body to csv and save to file so I know it worked
         if (data.Prediction.predictedLabel == 1) {
           var fields = [
@@ -145,7 +149,9 @@ app.post('/received', function(req, res) {
           {
             value: "predictedScores['1']",
             label: 'Score'
-          }
+          },
+          'time',
+          'body'
           ];
         } else {
           var fields = [
@@ -156,7 +162,9 @@ app.post('/received', function(req, res) {
           {
             value: "predictedScores['0']",
             label: 'Score'
-          }
+          },
+          'time',
+          'body'
           ];
         }
 
