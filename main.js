@@ -110,7 +110,8 @@ app.post('/received', function(req, res) {
       errored = true;
     } else {
       var body = response.body.body[0].content;
-      body.substring(0,2000); // limit to 2000 characters
+      body = body.substring(0,2000); // limit to 2000 characters
+      console.log('substring body: ' + body);
     }
 
     // run it through Amazon ML
