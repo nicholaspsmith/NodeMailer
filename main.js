@@ -106,6 +106,7 @@ app.get('/unsignedn',function (req, res) {
 app.post('/received', function(req, res) {
 
   var message_id = req.body.body.message_id;
+  console.log(req.body);
   var errored = false;
 
 
