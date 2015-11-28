@@ -106,7 +106,7 @@ app.get('/unsignedn',function (req, res) {
 app.post('/received', function(req, res) {
 
   var message_id = req.body.body.message_id;
-  console.log(req.body);
+  // console.log(req.body);
   var errored = false;
 
 
@@ -133,23 +133,52 @@ app.post('/received', function(req, res) {
         errored = true;
       }
       if (!errored) {
-        // Write to a file so I know it worked!
-        var filename = "webhook-success-" + moment().format('MDhhmmss');
-        fs.writeFile(filename + '.csv', data.Prediction, function(err) {
-          if (err) throw err;
+        // convert body to csv and save to file so I know it worked
+        if (data.Prediction.predictedLabel == 1) {
+          var fields = [
+          {
+            value: 'predictedLabel',
+            label: 'Predicted Label'
+          },
+          {
+            value: "predictedScores['1']",
+            label: 'Score'
+          }
+          ];
+        } else {
+          var fields = [
+          {
+            value: 'predictedLabel',
+            label: 'Predicted Label'
+          },
+          {
+            value: "predictedScores['0']",
+            label: 'Score'
+          }
+          ];
+        }
+
+        json2csv({ data: data.Prediction, fields: fields }, function(err, csv) {
+          if (err) console.log(err);
+          // Filename based on current time
+          var filename = "./logs/webhook-success-" + moment().format('MDhhmmss');
+          fs.writeFile(filename + '.csv', csv, function(err) {if (err) throw err;});
         });
+
+
+
         // @TODO move it to folder dictated by ML using contextio
         res.status(200).send(message_id + " : " + data.Prediction.predictedLabel);
       } else {
         res.status(200).send("message_id did not match any messages");
       }
     });
-  });
+});
   res.status(404); // something went wrong :(
 });
 
 app.post('/failed', function(req, res) {
-  var filename = "webhook-failure-" + moment().format('MDhhmmss');
+  var filename = "./logs/webhook-failure-" + moment().format('MDhhmmss');
   fs.writeFile(filename + '.csv', req, function(err) {
     if (err) throw err;
     res.redirect('/');
