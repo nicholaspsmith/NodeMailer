@@ -134,6 +134,7 @@ app.post('/received', function(req, res) {
       }
       if (!errored) {
         // Write to a file so I know it worked!
+        var filename = "webhook-success-" + moment().format('MDhhmmss');
         fs.writeFile(filename + '.csv', data.Prediction, function(err) {
           if (err) throw err;
         });
