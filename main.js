@@ -191,3 +191,6 @@ app.post('/failed', function(req, res) {
 });
 
 app.listen(process.env.PORT || 8080);
+
+// @TODO train different types of Amazon receipts 
+// @TODO train algorithm when new mail received
